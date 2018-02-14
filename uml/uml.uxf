@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>8</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>168</y>
+      <w>440</w>
+      <h>624</h>
+    </coordinates>
+    <panel_attributes>NeuralNetwork
+--
+# Weights and biases to be stored with one matrix
+# for each layer, in the following format:
+# weights[i](j, k) = the weight of the connection
+#                           from the jth node in the ith layer
+#                           to the kth node in the (i - 1)th
+#                           layer.
+- weights: std::vector&lt;arma::mat&gt;
+- biases: std::vector&lt;arma::mat&gt;
+--
+# Ctor accepts neural network architecture in array
+# format.
+# An array [2,4,4,2] represents the following network:
+#    Input layer with 2 nodes
+#    Hidden layer with 4 notes
+#    Hidden layer with 4 notes
+#    Output layer with 2 nodes
+# The ctor will initialize the weights/biases with small
+# random values to represent this network.
+# Currently, all networks are simple feed-forward networks
+# that have all nodes in the ith layer connected to all nodes
+# in the (i + 1)th layer.
++ NeuralNetwork(config: const std::vector&lt;int&gt;&amp;)
+
+# Performs feed-forward and returns matrices with the
+# resulting activations and weighed inputs.
+# In each output matrix, mat(i, j) represents the jth node in the ith layer.
++ const feedForward(input: const arma::vec&amp;, 
+                                 out_activations: std::unique_ptr&lt;arma::mat&gt;&amp;, 
+                                 out_weighted_inputs: std::unique_ptr&lt;arma::mat&gt;&amp;) 
+
+# Simpler interface to feedForward function.
+# Instead of returning all of the activations and weighted inputs,
+# only returns the output layer activations.
+# Useful for actual predictions.
++ const predict(input: arma::vec): std::unique_ptr&lt;arma::vec&gt;
+
+struct NodeProperties {
+  double: weight;
+  double: bias;
+};
+
+# Get/set weight and bias of each node via the NodeProperties struct.
++ const getWeights(layer: int): const arma::mat&amp;
++ const getBiases(layer: int): const arma::mat&amp;
++ setNodeProperties(layer: int, node: int, props: const NodeProperties&amp;)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>472</x>
+      <y>168</y>
+      <w>464</w>
+      <h>264</h>
+    </coordinates>
+    <panel_attributes>NeuralNetworkTrainer
+--
+- network: std::shared_ptr&lt;NeuralNetwork&gt;
+- minibatch_size: int
+- num_epochs: int
+--
++ NodeProperties(network: std::shared_ptr&lt;NeuralNetwork&gt;, 
+                            mini_batch_size: int,
+                            num_epochs: int)
+
+# Runs Stochastic Gradient Descent with the provided minibatch_size 
+# for the specified number of epochs.
+# Updates the neural network after each iteration.
+# Makes use of helper methods.
++ const trainNetwork()
+
+- const calcGradients(activations: const arma::mat&amp;,
+                                  weighted_inputs: const arma::mat&amp;,
+                                  out_weight_gradients: std::unique_ptr&lt;std::vector&lt;arma::mat\&gt;&gt;&amp;,
+                                  out_bias_gradients: std::unique_ptr&lt;std::vector&lt;arma::mat\&gt;&gt;&amp;) </panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
