@@ -4,12 +4,12 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>328</x>
-      <y>0</y>
+      <x>584</x>
+      <y>136</y>
       <w>440</w>
       <h>624</h>
     </coordinates>
-    <panel_attributes>NeuralNetwork
+    <panel_attributes>NeuralNetwork&lt;class Activation, class Cost&gt;
 --
 # Weights and biases to be stored with one matrix
 # for each layer, in the following format:
@@ -18,7 +18,7 @@
 #                           to the kth node in the (i - 1)th
 #                           layer.
 - weights: VecOfMats
-- biases: VecOfMats
+- biases: VecOfColVecs
 - 
 --
 # Ctor accepts neural network architecture in array
@@ -38,15 +38,15 @@
 # Performs feed-forward and returns matrices with the
 # resulting activations and weighed inputs.
 # In each output matrix, mat(i, j) represents the jth node in the ith layer.
-+ const feedForward(input: const arma::vec&amp;, 
-                                 out_activations: std::unique_ptr&lt;VecOfMats&gt;&amp;, 
-                                 out_weighted_inputs: std::unique_ptr&lt;VecOfMats&gt;&amp;) 
++ const feedForward(input: const arma::colvec&amp;, 
+                                 out_activations: std::unique_ptr&lt;VecOfColVecs&gt;&amp;, 
+                                 out_weighted_inputs: std::unique_ptr&lt;VecOfColVecs&gt;&amp;) 
 
 # Simpler interface to feedForward function.
 # Instead of returning all of the activations and weighted inputs,
 # only returns the output layer activations.
 # Useful for actual predictions.
-+ const predict(input: arma::vec): std::unique_ptr&lt;arma::vec&gt;
++ const predict(input: arma::colvec): std::unique_ptr&lt;arma::colvec&gt;
 
 struct NodeProperties {
   double: weight;
@@ -62,18 +62,20 @@ struct NodeProperties {
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>800</x>
-      <y>0</y>
+      <x>1056</x>
+      <y>136</y>
       <w>504</w>
       <h>264</h>
     </coordinates>
-    <panel_attributes>NeuralNetworkTrainer
+    <panel_attributes>NeuralNetworkTrainer&lt;class Activation, class Cost&gt;
 --
-- network: std::shared_ptr&lt;NeuralNetwork&gt;
++ typedef NeuralNetwork&lt;Activation, Cost&gt; NeuralNetworkLoc;
+--
+- network: std::shared_ptr&lt;NeuralNetworkLoc&gt;
 - minibatch_size: int
 - num_epochs: int
 --
-+ NodeProperties(network: std::shared_ptr&lt;NeuralNetwork&gt;, 
++ NodeProperties(network: std::shared_ptr&lt;NeuralNetworkLoc&gt;, 
                             mini_batch_size: int,
                             num_epochs: int)
 
@@ -83,52 +85,53 @@ struct NodeProperties {
 # Makes use of helper methods.
 + const trainNetwork()
 
-- const calcGradients(activations: const arma::mat&amp;,
-                                  weighted_inputs: const arma::mat&amp;,
+- const calcGradients(activations: const VecOfColVecs&amp;,
+                                  weighted_inputs: const VecOfColVecs&amp;,
                                   out_weight_gradients: std::unique_ptr&lt;VecOfMats&gt;&amp;,
-                                  out_bias_gradients: std::unique_ptr&lt;VecOfMats&gt;&amp;) </panel_attributes>
+                                  out_bias_gradients: std::unique_ptr&lt;VecOfColVecs&gt;&amp;) </panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>0</x>
-      <y>0</y>
-      <w>264</w>
+      <x>240</x>
+      <y>136</y>
+      <w>288</w>
       <h>72</h>
     </coordinates>
     <panel_attributes>Utils
 --
 typedef std::vector&lt;arma::mat&gt; VecOfMats;
+typedef std::vector&lt;arma::colvec&gt; VecOfColVecs;
 typedef std::vector&lt;int&gt; VecOfInts;</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>800</x>
-      <y>280</y>
-      <w>408</w>
+      <x>1056</x>
+      <y>416</y>
+      <w>448</w>
       <h>104</h>
     </coordinates>
     <panel_attributes>SigmoidActivation
 -
-+ static eval(input: const arma::vec&amp;): std::unique_ptr&lt;arma::vec&gt;
-+ static evalPrime(input: const arma::vec&amp;): std::unique_ptr&lt;arma::vec&gt;</panel_attributes>
++ static eval(input: const arma::colvec&amp;): std::unique_ptr&lt;arma::colvec&gt;
++ static evalPrime(input: const arma::colvec&amp;): std::unique_ptr&lt;arma::colvec&gt;</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>800</x>
-      <y>400</y>
-      <w>408</w>
+      <x>1056</x>
+      <y>536</y>
+      <w>616</w>
       <h>104</h>
     </coordinates>
     <panel_attributes>MeanSquaredErrorCost
 -
-+ static eval(predict: const arma::vec&amp;, correct: const arma::vec&amp;): std::unique_ptr&lt;arma::vec&gt;
-+ static evalPrime(predict: const arma::vec&amp;, correct: const arma::vec&amp;): std::unique_ptr&lt;arma::vec&gt;</panel_attributes>
++ static eval(predict: const arma::colvec&amp;, correct: const arma::colvec&amp;): std::unique_ptr&lt;arma::colvec&gt;
++ static evalPrime(predict: const arma::colvec&amp;, correct: const arma::colvec&amp;): std::unique_ptr&lt;arma::colvec&gt;</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

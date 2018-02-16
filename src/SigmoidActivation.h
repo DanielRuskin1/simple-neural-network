@@ -12,8 +12,8 @@
 
 class SigmoidActivation {
 public:
-	static std::unique_ptr<arma::vec> eval(const arma::colvec& input);
-	static std::unique_ptr<arma::vec> evalPrime(const arma::colvec& input);
+	static std::unique_ptr<arma::colvec> eval(const arma::colvec& input);
+	static std::unique_ptr<arma::colvec> evalPrime(const arma::colvec& input);
 };
 
 #endif /* SRC_SIGMOIDACTIVATION_H_ */
