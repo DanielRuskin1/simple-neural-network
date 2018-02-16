@@ -4,8 +4,8 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>0</x>
-      <y>168</y>
+      <x>328</x>
+      <y>0</y>
       <w>440</w>
       <h>624</h>
     </coordinates>
@@ -17,8 +17,9 @@
 #                           from the jth node in the ith layer
 #                           to the kth node in the (i - 1)th
 #                           layer.
-- weights: std::vector&lt;arma::mat&gt;
-- biases: std::vector&lt;arma::mat&gt;
+- weights: VecOfMats
+- biases: VecOfMats
+- 
 --
 # Ctor accepts neural network architecture in array
 # format.
@@ -32,14 +33,14 @@
 # Currently, all networks are simple feed-forward networks
 # that have all nodes in the ith layer connected to all nodes
 # in the (i + 1)th layer.
-+ NeuralNetwork(config: const std::vector&lt;int&gt;&amp;)
++ NeuralNetwork(config: const VecOfInts&amp;)
 
 # Performs feed-forward and returns matrices with the
 # resulting activations and weighed inputs.
 # In each output matrix, mat(i, j) represents the jth node in the ith layer.
 + const feedForward(input: const arma::vec&amp;, 
-                                 out_activations: std::unique_ptr&lt;arma::mat&gt;&amp;, 
-                                 out_weighted_inputs: std::unique_ptr&lt;arma::mat&gt;&amp;) 
+                                 out_activations: std::unique_ptr&lt;VecOfMats&gt;&amp;, 
+                                 out_weighted_inputs: std::unique_ptr&lt;VecOfMats&gt;&amp;) 
 
 # Simpler interface to feedForward function.
 # Instead of returning all of the activations and weighted inputs,
@@ -61,9 +62,9 @@ struct NodeProperties {
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>472</x>
-      <y>168</y>
-      <w>464</w>
+      <x>800</x>
+      <y>0</y>
+      <w>504</w>
       <h>264</h>
     </coordinates>
     <panel_attributes>NeuralNetworkTrainer
@@ -84,8 +85,50 @@ struct NodeProperties {
 
 - const calcGradients(activations: const arma::mat&amp;,
                                   weighted_inputs: const arma::mat&amp;,
-                                  out_weight_gradients: std::unique_ptr&lt;std::vector&lt;arma::mat\&gt;&gt;&amp;,
-                                  out_bias_gradients: std::unique_ptr&lt;std::vector&lt;arma::mat\&gt;&gt;&amp;) </panel_attributes>
+                                  out_weight_gradients: std::unique_ptr&lt;VecOfMats&gt;&amp;,
+                                  out_bias_gradients: std::unique_ptr&lt;VecOfMats&gt;&amp;) </panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>0</x>
+      <y>0</y>
+      <w>264</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>Utils
+--
+typedef std::vector&lt;arma::mat&gt; VecOfMats;
+typedef std::vector&lt;int&gt; VecOfInts;</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>800</x>
+      <y>280</y>
+      <w>408</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>SigmoidActivation
+-
++ static eval(input: const arma::vec&amp;): std::unique_ptr&lt;arma::vec&gt;
++ static evalPrime(input: const arma::vec&amp;): std::unique_ptr&lt;arma::vec&gt;</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>800</x>
+      <y>400</y>
+      <w>408</w>
+      <h>104</h>
+    </coordinates>
+    <panel_attributes>MeanSquaredErrorCost
+-
++ static eval(predict: const arma::vec&amp;, correct: const arma::vec&amp;): std::unique_ptr&lt;arma::vec&gt;
++ static evalPrime(predict: const arma::vec&amp;, correct: const arma::vec&amp;): std::unique_ptr&lt;arma::vec&gt;</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>

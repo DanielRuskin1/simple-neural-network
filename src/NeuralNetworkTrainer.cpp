@@ -6,7 +6,3 @@
  */
 
 #include "NeuralNetworkTrainer.h"
-
-namespace SimpleNeuralNetwork {
-
-} /* namespace SimpleNeuralNetwork */

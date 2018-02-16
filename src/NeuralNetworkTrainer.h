@@ -12,19 +12,22 @@
 #include <armadillo>
 #include "NeuralNetwork.h"
 
-namespace SimpleNeuralNetwork {
-
+template <class Activation, class Cost>
 class NeuralNetworkTrainer {
 public:
-	NeuralNetworkTrainer(std::shared_ptr<NeuralNetwork> new_network, int new_mini_batch_size, int new_num_epochs);
+	typedef NeuralNetwork<Activation, Cost> NeuralNetworkLoc;
+	NeuralNetworkTrainer(std::shared_ptr<NeuralNetworkLoc> new_network, int new_mini_batch_size, int new_num_epochs);
 
 	void trainNetwork() const;
 private:
-	std::shared_ptr<NeuralNetwork> network;
+	std::shared_ptr<NeuralNetworkLoc> network;
 	int mini_batch_size;
 	int num_epochs;
-};
 
-} /* namespace SimpleNeuralNetwork */
+	void calcGradients(const VecOfColVecs& activations,
+					   const VecOfColVecs& weighted_inputs,
+					   std::unique_ptr<VecOfMats>& out_weight_gradients,
+					   std::unique_ptr<VecOfColVecs>& out_bias_gradients) const;
+};
 
 #endif /* SRC_NEURALNETWORKTRAINER_H_ */
