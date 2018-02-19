@@ -77,3 +77,12 @@ std::unique_ptr<arma::colvec> NeuralNetwork<Activation, Cost>::predict(const arm
 	out.reset(new arma::colvec(outAct->back()));
 	return std::move(out);
 }
+
+// Updates weights connecting layer L to layer L - 1
+// Updates biases for layer L.
+// Undefined behavior if called for layer 0.
+template <class Activation, class Cost>
+void NeuralNetwork<Activation, Cost>::setLayerProperties(int layer, const arma::mat& new_weights, const arma::colvec& new_biases) {
+	weights[layer - 1] = new_weights;
+	biases[layer - 1] = new_biases;
+}

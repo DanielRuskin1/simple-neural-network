@@ -8,6 +8,7 @@
 #ifndef SRC_SIGMOIDACTIVATION_H_
 #define SRC_SIGMOIDACTIVATION_H_
 
+#include <memory>
 #include <armadillo>
 
 class SigmoidActivation {

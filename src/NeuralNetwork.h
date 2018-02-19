@@ -8,6 +8,7 @@
 #ifndef SRC_NEURALNETWORK_H_
 #define SRC_NEURALNETWORK_H_
 
+#include <memory>
 #include <vector>
 #include <armadillo>
 #include "Utils.h"
@@ -23,11 +24,7 @@ public:
 	const arma::mat& getWeights(int layer) const;
 	const arma::colvec& getBiases(int layer) const;
 
-	struct NodeProperties {
-		double weight;
-		double bias;
-	};
-	void setNodeProperties(int layer, int node, const NodeProperties& props);
+	void setLayerProperties(int layer, const arma::mat& new_weights, const arma::colvec& new_biases);
 private:
 	int num_layers;
 	int input_layer_size;

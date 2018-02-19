@@ -13,7 +13,7 @@
 
 class MeanSquaredErrorCost {
 public:
-	static std::unique_ptr<arma::colvec> eval(const arma::colvec& predict, const arma::colvec& correct);
+	static double eval(const arma::colvec& predict, const arma::colvec& correct);
 	static std::unique_ptr<arma::colvec> evalPrime(const arma::colvec& predict, const arma::colvec& correct);
 };
 
