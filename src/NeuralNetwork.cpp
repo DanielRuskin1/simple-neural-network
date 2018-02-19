@@ -7,54 +7,66 @@
 
 #include "NeuralNetwork.h"
 
-template <class Activation, class Cost> NeuralNetwork<Activation, Cost>::NeuralNetwork(const VecOfInts& config) {
+template <class Activation, class Cost>
+NeuralNetwork<Activation, Cost>::NeuralNetwork(const VecOfInts& config) {
 	num_layers = config.size();
 	input_layer_size = config[0];
-	weights.resize(num_layers);
-	biases.resize(num_layers);
+	weights.resize(num_layers - 1);
+	biases.resize(num_layers - 1);
 
-	// Weights/biases for first layer
-	weights[0].resize(config[0], 1);
-	weights[0].ones();
-	biases[0].resize(config[0], 1);
-	biases[0].zeros();
-
-	// Weights/biases for all other layers
-	// Weight[L](J, K) is connecting node J in layer L to node K in layer L - 1;
-	// Bias[L](J) is bias for node J in layer L.
-	for(int l = 1; l < config.size(); l++) {
+	// Weights/biases for all layers other than the first one
+	// Weird indexing because 0th layer has no weights/biases:
+	// 		Weight[L](J, K) is connecting node J in layer L + 1 to node K in layer L;
+	// 		Bias[L](J) is bias for node J in layer L + 1.
+	// Abstracted away later via getter methods
+	for(int l = 0; l < config.size() - 1; l++) {
 		// Fill to [0.01, 1.01] and divide by 10 => [0.001, 0.101]
-		weights[l].resize(config[l], config[l - 1]);
-		weights[l].fill(arma::fill::randn);
+		weights[l].resize(config[l + 1], config[l]);
+		weights[l].fill(arma::fill::randu);
 		weights[l] += 0.01;
 		weights[l] /= 10;
 
-		biases[l].resize(config[l]);
-		biases[l].fill(arma::fill::randn);
+		biases[l].resize(config[l + 1]);
+		biases[l].fill(arma::fill::randu);
 		biases[l] += 0.01;
 		biases[l] /= 10;
 	}
 }
 
-template <class Activation, class Cost> void NeuralNetwork<Activation, Cost>::feedForward(const arma::colvec& input, std::unique_ptr<VecOfColVecs>& out_weighted_inputs, std::unique_ptr<VecOfColVecs>& out_activations) const {
+// Returns weights connecting layer L to layer L - 1
+// Undefined behavior if called for layer 0.
+template <class Activation, class Cost>
+const arma::mat& NeuralNetwork<Activation, Cost>::getWeights(int layer) const {
+	return weights[layer - 1];
+}
+
+// Returns biases for layer L.
+// Undefined behavior if called for layer 0.
+template <class Activation, class Cost>
+const arma::colvec& NeuralNetwork<Activation, Cost>::getBiases(int layer) const {
+	return biases[layer - 1];
+}
+
+template <class Activation, class Cost>
+void NeuralNetwork<Activation, Cost>::feedForward(const arma::colvec& input, std::unique_ptr<VecOfColVecs>& out_weighted_inputs, std::unique_ptr<VecOfColVecs>& out_activations) const {
 	arma::colvec last_activation = input;
 	if(last_activation.size() != input_layer_size) { throw std::runtime_error("Invalid input size!"); }
 
 	out_weighted_inputs.reset(new VecOfColVecs);
 	out_activations.reset(new VecOfColVecs);
 
-	for(int l = 0; l < num_layers; l++) {
-		arma::colvec weighted_input = (last_activation * weights[l]) + biases[l];
-		arma::colvec activated = Activation::eval(weighted_input);
+	for(int l = 1; l < num_layers; l++) {
+		arma::colvec weighted_input = (getWeights(l) * last_activation) + getBiases(l);
+		std::unique_ptr<arma::colvec> activated = Activation::eval(weighted_input);
+		last_activation = *activated;
 
 		out_weighted_inputs->push_back(weighted_input);
-		out_activations->push_back(activated);
-
-		last_activation = activated;
+		out_activations->push_back(last_activation);
 	}
 }
 
-template <class Activation, class Cost> std::unique_ptr<arma::colvec> NeuralNetwork<Activation, Cost>::predict(const arma::colvec& input) const {
+template <class Activation, class Cost>
+std::unique_ptr<arma::colvec> NeuralNetwork<Activation, Cost>::predict(const arma::colvec& input) const {
 	std::unique_ptr<arma::colvec> out;
 
 	std::unique_ptr<VecOfColVecs> outWI;
