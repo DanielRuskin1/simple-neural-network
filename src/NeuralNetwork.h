@@ -26,8 +26,8 @@ public:
 
 	void setLayerProperties(int layer, const arma::mat& new_weights, const arma::colvec& new_biases);
 private:
-	int num_layers;
-	int input_layer_size;
+	unsigned int num_layers;
+	unsigned int input_layer_size;
 
 	VecOfMats weights;
 	VecOfColVecs biases;

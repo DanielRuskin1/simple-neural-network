@@ -33,7 +33,13 @@ int main(int argc, char **argv)
 	std::shared_ptr<NeuralNetwork<SigmoidActivation, MeanSquaredErrorCost>> nnp;
 	nnp.reset(new NeuralNetwork<SigmoidActivation, MeanSquaredErrorCost>(config));
 
-	std::shared_ptr<const TrainingExamples> ex;
+	nnp->getWeights(0).print();
+
+	std::shared_ptr<TrainingExamples> ex(new TrainingExamples);
+	TrainingExample te;
+	te.first.resize(2);
+	te.second.resize(2);
+	ex->push_back(te);
 	NeuralNetworkTrainer<SigmoidActivation, MeanSquaredErrorCost> nnt(
 		nnp,
 		ex,
@@ -42,4 +48,6 @@ int main(int argc, char **argv)
 		10
 	);
 	nnt.trainNetwork();
+
+	nnp->getWeights(0).print();
 }

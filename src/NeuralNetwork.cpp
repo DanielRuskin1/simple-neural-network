@@ -34,19 +34,22 @@ NeuralNetwork<Activation, Cost>::NeuralNetwork(const VecOfInts& config) {
 }
 
 // Returns weights connecting layer L to layer L - 1
-// Undefined behavior if called for layer 0.
+// Indexing starts with first non-input layer (so you cannot call this for the input layer).
 template <class Activation, class Cost>
 const arma::mat& NeuralNetwork<Activation, Cost>::getWeights(int layer) const {
-	return weights[layer - 1];
+	return weights[layer];
 }
 
 // Returns biases for layer L.
 // Undefined behavior if called for layer 0.
+// Indexing starts with first non-input layer (so you cannot call this for the input layer).
 template <class Activation, class Cost>
 const arma::colvec& NeuralNetwork<Activation, Cost>::getBiases(int layer) const {
-	return biases[layer - 1];
+	return biases[layer];
 }
 
+// Returned weighted_inputs starts with first hidden layer (0th element => initial weighted input).
+// Return activations starts with input layer (0th element => input).
 template <class Activation, class Cost>
 void NeuralNetwork<Activation, Cost>::feedForward(const arma::colvec& input, std::unique_ptr<VecOfColVecs>& out_weighted_inputs, std::unique_ptr<VecOfColVecs>& out_activations) const {
 	arma::colvec last_activation = input;
@@ -55,8 +58,11 @@ void NeuralNetwork<Activation, Cost>::feedForward(const arma::colvec& input, std
 	out_weighted_inputs.reset(new VecOfColVecs);
 	out_activations.reset(new VecOfColVecs);
 
+	// First activation is technically the input
+	out_activations->push_back(input);
+
 	for(int l = 1; l < num_layers; l++) {
-		arma::colvec weighted_input = (getWeights(l) * last_activation) + getBiases(l);
+		arma::colvec weighted_input = (getWeights(l - 1) * last_activation) + getBiases(l - 1);
 		std::unique_ptr<arma::colvec> activated = Activation::eval(weighted_input);
 		last_activation = *activated;
 
@@ -80,9 +86,9 @@ std::unique_ptr<arma::colvec> NeuralNetwork<Activation, Cost>::predict(const arm
 
 // Updates weights connecting layer L to layer L - 1
 // Updates biases for layer L.
-// Undefined behavior if called for layer 0.
+// Indexing starts with first non-input layer (so you cannot call this for the input layer).
 template <class Activation, class Cost>
 void NeuralNetwork<Activation, Cost>::setLayerProperties(int layer, const arma::mat& new_weights, const arma::colvec& new_biases) {
-	weights[layer - 1] = new_weights;
-	biases[layer - 1] = new_biases;
+	weights[layer] = new_weights;
+	biases[layer] = new_biases;
 }

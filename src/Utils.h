@@ -13,7 +13,7 @@
 
 typedef std::vector<arma::mat> VecOfMats;
 typedef std::vector<arma::colvec> VecOfColVecs;
-typedef std::vector<int> VecOfInts;
+typedef std::vector<unsigned int> VecOfInts;
 typedef std::pair<arma::colvec, arma::colvec> TrainingExample; // Pair of <feature, correct_prediction>
 typedef std::vector<TrainingExample> TrainingExamples;
 

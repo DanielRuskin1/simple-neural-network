@@ -30,6 +30,7 @@ private:
 
 	void calcGradients(const VecOfColVecs& weighted_inputs,
 					   const VecOfColVecs& activations,
+					   const arma::colvec& correct_val,
 					   std::unique_ptr<VecOfMats>& out_weight_gradients,
 					   std::unique_ptr<VecOfColVecs>& out_bias_gradients) const;
 };

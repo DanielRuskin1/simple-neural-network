@@ -17,6 +17,6 @@ std::unique_ptr<arma::colvec> SigmoidActivation::evalPrime(const arma::colvec& i
 	std::unique_ptr<arma::colvec> sigmoidVal = eval(input);
 
 	std::unique_ptr<arma::colvec> ret;
-	ret.reset(new arma::colvec((*sigmoidVal) * (1 - (*sigmoidVal))));
+	ret.reset(new arma::colvec((*sigmoidVal) % (1 - (*sigmoidVal))));
 	return std::move(ret);
 }
