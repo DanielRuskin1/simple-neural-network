@@ -57,7 +57,7 @@ void NeuralNetworkTrainer<Activation, Cost>::trainNetwork() const {
 				std::unique_ptr<VecOfColVecs> bias_grad_loc;
 				calcGradients(*weighted_inputs, *activations, (*examples)[exNum].second, weight_grad_loc, bias_grad_loc);
 				for(unsigned int layer = 0; layer < weight_grad_loc->size(); layer++) {
-					if(batch == 0) {
+					if(ex == 0) {
 						weight_grad.push_back((*weight_grad_loc)[layer]);
 						bias_grad.push_back((*bias_grad_loc)[layer]);
 					} else {
@@ -103,7 +103,7 @@ void NeuralNetworkTrainer<Activation, Cost>::calcGradients(const VecOfColVecs& w
 
 	arma::colvec error_in_next_layer;
 
-	for(unsigned int layer = weighted_inputs.size() - 1; layer >= 0; layer--) {
+	for(int layer = weighted_inputs.size() - 1; layer >= 0; layer--) {
 		arma::colvec error_in_this_layer;
 		if(layer == weighted_inputs.size() - 1) {
 			// For last layer, error is:

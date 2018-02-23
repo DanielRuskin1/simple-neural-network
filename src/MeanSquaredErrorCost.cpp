@@ -9,7 +9,7 @@
 
 // Eval for single training example
 double MeanSquaredErrorCost::eval(const arma::colvec& predict, const arma::colvec& correct) {
-	return (1 / 2) * arma::accu(arma::square(correct - predict));
+	return (1.0 / 2.0) * arma::accu(arma::square(correct - predict));
 }
 
 // Eval for single training example
