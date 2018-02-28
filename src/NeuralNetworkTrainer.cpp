@@ -8,8 +8,23 @@
 #include "NeuralNetworkTrainer.h"
 
 template <class Activation, class Cost>
-NeuralNetworkTrainer<Activation, Cost>::NeuralNetworkTrainer(std::shared_ptr<NeuralNetworkLoc> new_network, std::shared_ptr<const TrainingExamples> new_examples, double new_learning_rate, int new_mini_batch_size, int new_num_epochs)
-	: network(new_network), examples(new_examples), learning_rate(new_learning_rate), mini_batch_size(new_mini_batch_size), num_epochs(new_num_epochs) {
+NeuralNetworkTrainer<Activation, Cost>::NeuralNetworkTrainer(
+	std::shared_ptr<NeuralNetworkLoc> new_network,
+	std::shared_ptr<const arma::mat> new_training_features,
+	std::shared_ptr<const arma::mat> new_training_labels,
+	std::shared_ptr<const arma::mat> new_test_features,
+	std::shared_ptr<const arma::mat> new_test_labels,
+	double new_learning_rate,
+	int new_mini_batch_size,
+	int new_num_epochs) :
+		network(new_network),
+		training_features(new_training_features),
+		training_labels(new_training_labels),
+		test_features(new_test_features),
+		test_labels(new_test_labels),
+		learning_rate(new_learning_rate),
+		mini_batch_size(new_mini_batch_size),
+		num_epochs(new_num_epochs) {
 
 }
 
@@ -17,20 +32,22 @@ template <class Activation, class Cost>
 void NeuralNetworkTrainer<Activation, Cost>::trainNetwork() const {
 	BOOST_LOG_TRIVIAL(info) << "Training neural network...";
 
-	int num_batches_per_epoch = std::floor(examples->size() / mini_batch_size);
+	int num_training_examples = training_features->size();
+	int num_batches_per_epoch = std::floor(num_training_examples / mini_batch_size);
 	if(num_batches_per_epoch == 0) { num_batches_per_epoch = 1; }
 
 	for(int epoch = 0; epoch < num_epochs; epoch++) {
 		std::string log_msg = "Training epoch " + std::to_string(epoch);
 		BOOST_LOG_TRIVIAL(info) << log_msg;
 
-		std::vector<int> examples_remaining_for_epoch(examples->size());
+		std::vector<int> examples_remaining_for_epoch(num_training_examples);
 		std::iota(examples_remaining_for_epoch.begin(), examples_remaining_for_epoch.end(), 0);
 		std::random_shuffle(examples_remaining_for_epoch.begin(), examples_remaining_for_epoch.end());
 
 		for(int batch = 0; batch < num_batches_per_epoch; batch++) {
-			std::string log_msg_deep = log_msg + ", batch " + std::to_string(batch);
-			BOOST_LOG_TRIVIAL(info) << log_msg_deep;
+			if(batch % 100 == 0) {
+				BOOST_LOG_TRIVIAL(info) << "Batch: " << batch << " / " << num_batches_per_epoch;
+			}
 
 			// If on last batch, use all remaining examples in this batch.
 			// Otherwise, use normal batch size.
@@ -41,7 +58,6 @@ void NeuralNetworkTrainer<Activation, Cost>::trainNetwork() const {
 			// Calculate all gradients for this example + total cost
 			VecOfMats weight_grad;
 			VecOfColVecs bias_grad;
-			double cost = 0;
 			for(int ex = 0; ex < num_examples_in_batch; ex++) {
 				// Pick example to use
 				int exNum = examples_remaining_for_epoch.back();
@@ -50,12 +66,13 @@ void NeuralNetworkTrainer<Activation, Cost>::trainNetwork() const {
 				// Feedforward w/ example
 				std::unique_ptr<VecOfColVecs> weighted_inputs;
 				std::unique_ptr<VecOfColVecs> activations;
-				network->feedForward((*examples)[exNum].first, weighted_inputs, activations);
+				network->feedForward(arma::trans(training_features->row(exNum)), weighted_inputs, activations);
 
 				// Calculate and save gradients
 				std::unique_ptr<VecOfMats> weight_grad_loc;
 				std::unique_ptr<VecOfColVecs> bias_grad_loc;
-				calcGradients(*weighted_inputs, *activations, (*examples)[exNum].second, weight_grad_loc, bias_grad_loc);
+				calcGradients(*weighted_inputs, *activations, arma::trans(training_labels->row(exNum)), weight_grad_loc, bias_grad_loc);
+
 				for(unsigned int layer = 0; layer < weight_grad_loc->size(); layer++) {
 					if(ex == 0) {
 						weight_grad.push_back((*weight_grad_loc)[layer]);
@@ -65,12 +82,7 @@ void NeuralNetworkTrainer<Activation, Cost>::trainNetwork() const {
 						bias_grad[layer] += (*bias_grad_loc)[layer];
 					}
 				}
-
-				// Calc cost
-				cost += Cost::eval(activations->back(), (*examples)[exNum].second);
 			}
-			BOOST_LOG_TRIVIAL(info) << log_msg_deep << ", calculated cost/cost gradients!";
-			BOOST_LOG_TRIVIAL(info) << log_msg_deep << ", cost before this epoch: " << cost;
 
 			// Update weight/bias on each layer
 			for(unsigned int layer = 0; layer < weight_grad.size(); layer++) {
@@ -86,6 +98,18 @@ void NeuralNetworkTrainer<Activation, Cost>::trainNetwork() const {
 				);
 			}
 		}
+
+		// Simple test
+		BOOST_LOG_TRIVIAL(debug) << "Testing...";
+		int correct = 0;
+		for(int i = 0; i < test_features->size(); i++) {
+			std::unique_ptr<arma::colvec> pred = network->predict(arma::trans(test_features->row(i)));
+
+			if(pred->index_max() == test_labels->row(i).index_max()) {
+				correct += 1;
+			}
+		}
+		BOOST_LOG_TRIVIAL(debug) << "Current Accuracy (max is same in predict AND correct): " << correct << " / " << test_features->size();
 	}
 }
 

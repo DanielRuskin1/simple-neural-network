@@ -22,12 +22,12 @@ NeuralNetwork<Activation, Cost>::NeuralNetwork(const VecOfInts& config) {
 	for(int l = 0; l < config.size() - 1; l++) {
 		// Fill to [0.01, 1.01] and divide by 10 => [0.001, 0.101]
 		weights[l].resize(config[l + 1], config[l]);
-		weights[l].fill(arma::fill::randu);
+		weights[l].fill(arma::fill::randn);
 		weights[l] += 0.01;
 		weights[l] /= 10;
 
 		biases[l].resize(config[l + 1]);
-		biases[l].fill(arma::fill::randu);
+		biases[l].fill(arma::fill::randn);
 		biases[l] += 0.01;
 		biases[l] /= 10;
 	}

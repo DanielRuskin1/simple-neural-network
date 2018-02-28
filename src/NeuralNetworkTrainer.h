@@ -18,12 +18,22 @@ template <class Activation, class Cost>
 class NeuralNetworkTrainer {
 public:
 	typedef NeuralNetwork<Activation, Cost> NeuralNetworkLoc;
-	NeuralNetworkTrainer(std::shared_ptr<NeuralNetworkLoc> new_network, std::shared_ptr<const TrainingExamples> new_examples, double new_learning_rate, int new_mini_batch_size, int new_num_epochs);
+	NeuralNetworkTrainer(std::shared_ptr<NeuralNetworkLoc> new_network,
+						 std::shared_ptr<const arma::mat> new_training_features,
+						 std::shared_ptr<const arma::mat> new_training_labels,
+						 std::shared_ptr<const arma::mat> new_test_features,
+						 std::shared_ptr<const arma::mat> new_test_labels,
+						 double new_learning_rate,
+						 int new_mini_batch_size,
+						 int new_num_epochs);
 
 	void trainNetwork() const;
 private:
 	std::shared_ptr<NeuralNetworkLoc> network;
-	std::shared_ptr<const TrainingExamples> examples;
+	std::shared_ptr<const arma::mat> training_features;
+	std::shared_ptr<const arma::mat> training_labels;
+	std::shared_ptr<const arma::mat> test_features;
+	std::shared_ptr<const arma::mat> test_labels;
 	double learning_rate;
 	int mini_batch_size;
 	int num_epochs;
