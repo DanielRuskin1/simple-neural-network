@@ -4,22 +4,17 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>584</x>
-      <y>136</y>
-      <w>440</w>
+      <x>504</x>
+      <y>128</y>
+      <w>536</w>
       <h>624</h>
     </coordinates>
     <panel_attributes>NeuralNetwork&lt;class Activation, class Cost&gt;
 --
-# Weights and biases to be stored with one matrix
-# for each layer, in the following format:
-# weights[i](j, k) = the weight of the connection
-#                           from the jth node in the ith layer
-#                           to the kth node in the (i - 1)th
-#                           layer.
+- num_layers: unsigned int
+- input_layer_size: unsigned int
 - weights: VecOfMats
 - biases: VecOfColVecs
-- 
 --
 # Ctor accepts neural network architecture in array
 # format.
@@ -37,7 +32,6 @@
 
 # Performs feed-forward and returns matrices with the
 # resulting activations and weighed inputs.
-# In each output matrix, mat(i, j) represents the jth node in the ith layer.
 + const feedForward(input: const arma::colvec&amp;, 
                                  out_activations: std::unique_ptr&lt;VecOfColVecs&gt;&amp;, 
                                  out_weighted_inputs: std::unique_ptr&lt;VecOfColVecs&gt;&amp;) 
@@ -48,37 +42,42 @@
 # Useful for actual predictions.
 + const predict(input: arma::colvec): std::unique_ptr&lt;arma::colvec&gt;
 
-struct NodeProperties {
-  double: weight;
-  double: bias;
-};
-
-# Get/set weight and bias of each node via the NodeProperties struct.
 + const getWeights(layer: int): const arma::mat&amp;
 + const getBiases(layer: int): const arma::mat&amp;
-+ setNodeProperties(layer: int, node: int, props: const NodeProperties&amp;)</panel_attributes>
++ setNodeProperties(layer: int, new_weights: const arma::mat&amp;, new_biases: const arma::mat&amp;)
+
++ const writeToPrefix(const std::string&amp; prefix)</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1056</x>
-      <y>136</y>
+      <x>1096</x>
+      <y>128</y>
       <w>504</w>
-      <h>264</h>
+      <h>432</h>
     </coordinates>
     <panel_attributes>NeuralNetworkTrainer&lt;class Activation, class Cost&gt;
 --
 + typedef NeuralNetwork&lt;Activation, Cost&gt; NeuralNetworkLoc;
 --
 - network: std::shared_ptr&lt;NeuralNetworkLoc&gt;
+- training_features: std::shared_ptr&lt;const arma::mat&gt;
+- training_labels: std::shared_ptr&lt;const arma::mat&gt;
+- test_features: std::shared_ptr&lt;const arma::mat&gt;
+- test_labels: std::shared_ptr&lt;const arma::mat&gt;
+- learning_rate: double
 - minibatch_size: int
 - num_epochs: int
 --
-+ NodeProperties(network: std::shared_ptr&lt;NeuralNetworkLoc&gt;, 
-                            mini_batch_size: int,
-                            num_epochs: int)
-
++ NeuralNetworkTrainer(new_network: std::shared_ptr&lt;NeuralNetworkLoc&gt;,
+                                      new_training_features: std::shared_ptr&lt;const arma::mat&gt;,
+                                      new_training_labels: std::shared_ptr&lt;const arma::mat&gt;,
+                                      new_test_features: std::shared_ptr&lt;const arma::mat&gt;,
+                                      new_test_labels: std::shared_ptr&lt;const arma::mat&gt;,
+                                      new_learning_rate: double,
+                                      new_mini_batch_size: int,
+                                      new_num_epochs: int)
 # Runs Stochastic Gradient Descent with the provided minibatch_size 
 # for the specified number of epochs.
 # Updates the neural network after each iteration.
@@ -87,6 +86,7 @@ struct NodeProperties {
 
 - const calcGradients(activations: const VecOfColVecs&amp;,
                                   weighted_inputs: const VecOfColVecs&amp;,
+                                  correct_val: const arma::colvec&amp;,
                                   out_weight_gradients: std::unique_ptr&lt;VecOfMats&gt;&amp;,
                                   out_bias_gradients: std::unique_ptr&lt;VecOfColVecs&gt;&amp;) </panel_attributes>
     <additional_attributes/>
@@ -94,8 +94,8 @@ struct NodeProperties {
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>240</x>
-      <y>136</y>
+      <x>160</x>
+      <y>128</y>
       <w>288</w>
       <h>72</h>
     </coordinates>
@@ -103,14 +103,14 @@ struct NodeProperties {
 --
 typedef std::vector&lt;arma::mat&gt; VecOfMats;
 typedef std::vector&lt;arma::colvec&gt; VecOfColVecs;
-typedef std::vector&lt;int&gt; VecOfInts;</panel_attributes>
+typedef std::vector&lt;unsigned int&gt; VecOfInts;</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1056</x>
-      <y>416</y>
+      <x>1096</x>
+      <y>592</y>
       <w>448</w>
       <h>104</h>
     </coordinates>
@@ -123,8 +123,8 @@ typedef std::vector&lt;int&gt; VecOfInts;</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>1056</x>
-      <y>536</y>
+      <x>1096</x>
+      <y>704</y>
       <w>616</w>
       <h>104</h>
     </coordinates>

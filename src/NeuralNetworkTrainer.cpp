@@ -32,13 +32,12 @@ template <class Activation, class Cost>
 void NeuralNetworkTrainer<Activation, Cost>::trainNetwork() const {
 	BOOST_LOG_TRIVIAL(info) << "Training neural network...";
 
-	int num_training_examples = training_features->size();
+	int num_training_examples = training_features->n_rows;
 	int num_batches_per_epoch = std::floor(num_training_examples / mini_batch_size);
 	if(num_batches_per_epoch == 0) { num_batches_per_epoch = 1; }
 
 	for(int epoch = 0; epoch < num_epochs; epoch++) {
-		std::string log_msg = "Training epoch " + std::to_string(epoch);
-		BOOST_LOG_TRIVIAL(info) << log_msg;
+		BOOST_LOG_TRIVIAL(info) << "Training epoch " + std::to_string(epoch) + "...";
 
 		std::vector<int> examples_remaining_for_epoch(num_training_examples);
 		std::iota(examples_remaining_for_epoch.begin(), examples_remaining_for_epoch.end(), 0);
@@ -100,16 +99,16 @@ void NeuralNetworkTrainer<Activation, Cost>::trainNetwork() const {
 		}
 
 		// Simple test
-		BOOST_LOG_TRIVIAL(debug) << "Testing...";
+		BOOST_LOG_TRIVIAL(info) << "Testing...";
 		int correct = 0;
-		for(int i = 0; i < test_features->size(); i++) {
+		for(int i = 0; i < test_features->n_rows; i++) {
 			std::unique_ptr<arma::colvec> pred = network->predict(arma::trans(test_features->row(i)));
 
 			if(pred->index_max() == test_labels->row(i).index_max()) {
 				correct += 1;
 			}
 		}
-		BOOST_LOG_TRIVIAL(debug) << "Current Accuracy (max is same in predict AND correct): " << correct << " / " << test_features->size();
+		BOOST_LOG_TRIVIAL(info) << "Current Accuracy (max is same in predict AND correct): " << correct << " / " << test_features->n_rows;
 	}
 }
 

@@ -25,6 +25,8 @@ public:
 	const arma::colvec& getBiases(int layer) const;
 
 	void setLayerProperties(int layer, const arma::mat& new_weights, const arma::colvec& new_biases);
+
+	void writeToPrefix(const std::string& prefix) const;
 private:
 	unsigned int num_layers;
 	unsigned int input_layer_size;

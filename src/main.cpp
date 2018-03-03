@@ -44,6 +44,7 @@ int main(int argc, char **argv)
 		("learning_rate", boost::program_options::value<double>(), "Learning rate.")
 		("samples_per_epoch", boost::program_options::value<int>(), "Samples per epoch.")
 		("num_epochs", boost::program_options::value<int>(), "Num epochs.")
+		("output_prefix", boost::program_options::value<std::string>(), "Prefix for where the neural network properties should be saved.  If postpended with a '/', saves into a folder.  All directories necessary to save files with the provided prefix are automatically created.")
 	;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
@@ -54,6 +55,15 @@ int main(int argc, char **argv)
 	    BOOST_LOG_TRIVIAL(info) << "Program Help: ";
 	    std::cout << desc << std::endl;
 	    return 1;
+	}
+
+	// Get output prefix
+	std::string output_prefix;
+	if(vm.count("output_prefix")) {
+		output_prefix = vm["output_prefix"].as<std::string>();
+	} else {
+		BOOST_LOG_TRIVIAL(error) << "Output prefix not set!";
+		return 0;
 	}
 
 	BOOST_LOG_TRIVIAL(info) << "Creating neural network...";
@@ -136,6 +146,9 @@ int main(int argc, char **argv)
 		num_epochs
 	);
 	trainer.trainNetwork();
+
+	BOOST_LOG_TRIVIAL(info) << "Saving network...";
+	network->writeToPrefix(output_prefix);
 
 	BOOST_LOG_TRIVIAL(info) << "Done!";
 }

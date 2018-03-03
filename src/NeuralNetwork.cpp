@@ -6,6 +6,7 @@
  */
 
 #include "NeuralNetwork.h"
+#include <boost/filesystem.hpp>
 
 template <class Activation, class Cost>
 NeuralNetwork<Activation, Cost>::NeuralNetwork(const VecOfInts& config) {
@@ -91,4 +92,15 @@ template <class Activation, class Cost>
 void NeuralNetwork<Activation, Cost>::setLayerProperties(int layer, const arma::mat& new_weights, const arma::colvec& new_biases) {
 	weights[layer] = new_weights;
 	biases[layer] = new_biases;
+}
+
+// Writes neural network properties to folder (weights, biases)
+template <class Activation, class Cost>
+void NeuralNetwork<Activation, Cost>::writeToPrefix(const std::string& prefix) const {
+	boost::filesystem::create_directories(prefix);
+
+	for(int layer = 0; layer < num_layers - 1; layer++) {
+		weights[layer].save(prefix + "weights_l" + std::to_string(layer) + ".csv", arma::csv_ascii);
+		biases[layer].save(prefix + "biases_l" + std::to_string(layer) + ".csv", arma::csv_ascii);
+	}
 }
